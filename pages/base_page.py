@@ -1,6 +1,7 @@
 from selenium.common.exceptions import (
     NoSuchElementException,
-    NoAlertPresentException
+    NoAlertPresentException,
+    TimeoutException
 )
 
 from selenium.webdriver.support.wait import WebDriverWait
@@ -34,15 +35,37 @@ class BasePage():
     def open(self):
         self.browser.get(self.url)
         
-    # Verifications
+    # Verification methods
     
-    def is_element_present(self, locator=tuple):
+    def is_element_present(self, locator: tuple):
         try:
             self.browser.find_element(*locator)
         except (NoSuchElementException):
             return False
+        
         return True
+    
+    def is_not_element_present(self, locator: tuple, timeout=4):
+        try:
+            WebDriverWait(self.browser, timeout).until(
+                EC.presence_of_element_located(locator)
+                )
+        except TimeoutException:
+            return True
 
+        return False
+    
+    def is_element_disappeared(self, locator, timeout=4):
+        try:
+            WebDriverWait(
+                self.browser, timeout, 1, TimeoutException).until_not(
+                    EC.presence_of_element_located(locator)
+                    )
+        except TimeoutException:
+            return False
+
+        return True
+    
     def verify_elements_text_match(self, locator_compared, locator_main):
         try:
             element_compared = self.browser.find_element(*locator_compared)
@@ -52,4 +75,5 @@ class BasePage():
             return False, "One of elements is not found"
         except (AssertionError):
             return False, f"Elements text doesn't match: {element_compared.text} != {element_main.text}"
+        
         return True, (element_compared.text, element_main.text)
