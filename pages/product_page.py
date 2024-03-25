@@ -7,9 +7,21 @@ class ProductPage(BasePage):
             *ProductPageLocators.ADD_TO_BASKET_BUTTON)
         login_link.click()
         
-    def should_be_item_is_added_message(self):
-        assert self.is_element_present(ProductPageLocators.ADD_SUCCESS_MESSAGE), "Add item success message is missing"
+    def should_not_be_add_success_message(self):
+        assert self.is_not_element_present(
+            ProductPageLocators.ADD_SUCCESS_MESSAGE), \
+            "Add item success message is presented, but should not be"
         
+    def should_be_add_success_message(self):
+        assert self.is_element_present(
+            ProductPageLocators.ADD_SUCCESS_MESSAGE), \
+            "Add item success message is missing"
+            
+    def should_be_add_success_message_disappeared(self):
+        assert self.is_element_disappeared(
+            ProductPageLocators.ADD_SUCCESS_MESSAGE), \
+            "Add item success message is not disappeared"
+            
     def should_be_added_item_name_in_success_message(self):
         verif_result, message = self.verify_elements_text_match(
             ProductPageLocators.ITEM_NAME_PRODUCT_MAIN,
